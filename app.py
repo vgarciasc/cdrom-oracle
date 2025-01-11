@@ -18,4 +18,8 @@ if __name__ == '__main__':
     image_paths = [path.replace("\\", "/") for path in image_paths]
     MODEL = OracleClip(image_embeddings, image_paths)
 
-    app.run(host='0.0.0.0', port=5000)
+    from waitress import serve
+    import logging
+
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
+    serve(app, host='0.0.0.0', port=7823)

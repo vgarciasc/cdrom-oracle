@@ -9,6 +9,10 @@ app = Flask(__name__)
 app.jinja_env.filters['zip'] = zip
 MODEL = None
 
+@app.route("/helloworld")
+def hello():
+    return "Hello World!"
+
 @app.route('/query')
 def search_for_sentence():
     sentence = request.args.get('sentence', '')

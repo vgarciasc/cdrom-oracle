@@ -4,7 +4,6 @@ from datetime import datetime
 
 import torch
 import open_clip
-import pickle
 import PIL.Image
 import pandas as pd
 from tqdm import tqdm
@@ -13,17 +12,24 @@ import numpy as np
 class OracleClip():
     def __init__(self, embedding_db_path, metadata_db_path, embeddings_folder_path="data/embeddings",
                  device="cpu", model_id='hf-hub:laion/CLIP-ViT-B-32-laion2B-s34B-b79K'):
-        print("Loading model...")
+        print("Initialized OracleClip.")
+        print("Loading embeddings db...")
         if embedding_db_path is not None and os.path.exists(embedding_db_path):
             with open(embedding_db_path, "rb") as f:
                 self.database = pd.read_pickle(f)
                 self.image_embeddings = torch.tensor(self.database['embeddings'].values.tolist())
+                print(f"Loaded database with {len(self.database)} images.")
         else:
             self.database = pd.DataFrame(columns=["paths", "embeddings", "youtube_id"])
+            self.image_embeddings = torch.tensor(np.zeros((0, 512)))
+            print("No database found. Starting with an empty database.")
 
+        print("Loading metadata...")
         self.metadata_database = pd.read_csv(metadata_db_path)
         self.embeddings_folder_path = embeddings_folder_path
+        print("Loaded metadata.")
 
+        print("Loading CLIP model...")
         self.device = device
         self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_id, device=self.device)
         self.tokenizer = open_clip.get_tokenizer(model_id)

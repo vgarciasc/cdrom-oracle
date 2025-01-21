@@ -1,22 +1,34 @@
 import pickle
+import pandas as pd
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template_string
 from datetime import datetime
 from oracle_clip import OracleClip
 
 app = Flask(__name__)
+app.jinja_env.filters['zip'] = zip
 MODEL = None
 
 @app.route('/query')
 def search_for_sentence():
     sentence = request.args.get('sentence', '')
-    res = MODEL.find_most_similar_images(sentence, k=3)
+    res = MODEL.find_similar_games(sentence)
     return jsonify(res)
 
+@app.route('/search')
+def search():
+    query = request.args.get("q", "")
+
+    res = MODEL.find_similar_games(query) if query else []
+
+    with open("templates/search.html", 'r', encoding='utf-8') as f:
+        html_template = f.read()
+
+    return render_template_string(html_template, query=query, results=res)
+
+
 if __name__ == '__main__':
-    image_embeddings, image_paths = pickle.load(open("embeddings/image-embeddings-v0.pkl", "rb"))
-    image_paths = [path.replace("\\", "/") for path in image_paths]
-    MODEL = OracleClip(image_embeddings, image_paths)
+    MODEL = OracleClip("data/embeddings/clip-db.pkl", "data/cdrom-db.csv")
 
     from waitress import serve
     import logging

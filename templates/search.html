@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oráculo dos CD-ROMs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+<div class="container d-flex justify-content-center">
+    <br><br><br>
+    <div class="col-md-6">
+        <br><br>
+        <div class="text-center">
+            <img class="img-fluid" src="static/img/rabbit-genie.png">
+            <h1>Oráculo dos CD-ROMs</h1>
+        </div>
+        <br>
+
+        <p>Digite na barra de busca abaixo o que você se lembra do jogo, e vou tentar te ajudar...</p>
+        <div class="input-group">
+            <input id="searchbar" type="text" placeholder="Um cachorro e um gato" class="form-control">
+            <button class="btn btn-primary" onclick="search()">Buscar</button>
+        </div>
+        {% if query %}
+        <hr>
+        <h2>Resultados</h2>
+        <p>Você buscou por: "<em>{{ query }}</em>"</p>
+        {% for result in results %}
+        <div class="card mb-4">
+            <div class="card-header">
+                {{ result['Nome da obra no Brasil'] }} ({{ result['Lançamento brasileiro'] }})
+            </div>
+            <div class="row g-3 card-body">
+                {% for path, similarity in result.paths|zip(result.similarity) %}
+                <div class="col-sm-4 text-center">
+                    <a target="_blank" href="https://cdrom-oracle-bucket.s3.us-east-1.amazonaws.com/{{result.youtube_id}}/{{ path }}"><img src="https://cdrom-oracle-bucket.s3.us-east-1.amazonaws.com/{{result.youtube_id}}/{{ path }}"
+                         class="img-fluid" alt="Imagem do Jogo"></a>
+                    <p>Similarity: {{ "{:,.2f}".format(similarity) }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+</body>
+<script>
+function search() {
+    // Get the value from the search bar
+    const query = document.getElementById('searchbar').value;
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+}
+</script>
+</html>

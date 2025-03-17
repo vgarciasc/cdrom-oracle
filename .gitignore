@@ -169,3 +169,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+frames/*
+videos/*
+data/embeddings/*
+.idea/*

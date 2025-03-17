@@ -13,6 +13,13 @@ class OracleClip():
     def __init__(self, embedding_db_path, metadata_db_path, embeddings_folder_path="data/embeddings",
                  device="cpu", model_id='hf-hub:laion/CLIP-ViT-B-32-laion2B-s34B-b79K'):
         print("Initialized OracleClip.")
+
+        print("Loading CLIP model...")
+        self.device = device
+        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_id, device=self.device)
+        self.tokenizer = open_clip.get_tokenizer(model_id)
+        print("Loaded CLIP model.")
+
         print("Loading embeddings db...")
         if embedding_db_path is not None and os.path.exists(embedding_db_path):
             with open(embedding_db_path, "rb") as f:
@@ -25,15 +32,9 @@ class OracleClip():
             print("No database found. Starting with an empty database.")
 
         print("Loading metadata...")
-        self.metadata_database = pd.read_csv(metadata_db_path)
+        self.metadata_database = pd.read_csv(metadata_db_path) if metadata_db_path is not None else pd.DataFrame()
         self.embeddings_folder_path = embeddings_folder_path
         print("Loaded metadata.")
-
-        print("Loading CLIP model...")
-        self.device = device
-        self.model, _, self.preprocess = open_clip.create_model_and_transforms(model_id, device=self.device)
-        self.tokenizer = open_clip.get_tokenizer(model_id)
-        print("Loaded CLIP model.")
 
     def calculate_similarity_to_frames(self, sentence):
         """Find the image most similar to the given sentence."""
@@ -54,7 +55,7 @@ class OracleClip():
         id_cols = ['youtube_id', 'YouTube ID', 'Nome da obra no Brasil', 'Lançamento brasileiro']
 
         df = self.calculate_similarity_to_frames(sentence)
-        df = df.merge(self.metadata_database, left_on="youtube_id", right_on="YouTube ID (capitalized)")
+        df = df.merge(self.metadata_database, left_on="youtube_id", right_on="YouTube ID")
         df = df.groupby(id_cols, sort=False).agg({'paths': list, 'similarity': list})
         df['paths'] = df['paths'].apply(lambda x: x[:max_images_per_game])
         df = df.head(max_games)
@@ -89,7 +90,7 @@ class OracleClip():
     def update_database_embeddings(self, new_image_folder):
         os.makedirs(self.embeddings_folder_path, exist_ok=True)
 
-        youtube_id = new_image_folder.split("/")[-1].split("\\")[-1].split(".")[0][:10]
+        youtube_id = new_image_folder.split("/")[-1].split("\\")[-1].split(".")[0][:11]
 
         new_embeddings, new_paths = self.get_folder_embeddings(new_image_folder)
         new_db = pd.DataFrame({"paths": new_paths, "embeddings": new_embeddings.detach().cpu().numpy().tolist()})
@@ -108,5 +109,5 @@ class OracleClip():
 
 if __name__ == "__main__":
     model = OracleClip("data/embeddings/clip-db.pkl", "data/cdrom-db.csv")
-    res = model.find_similar_games("Cartoon drawing of an alien")
+    res = model.find_similar_games("bears")
     print(res)

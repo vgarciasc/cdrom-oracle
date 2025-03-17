@@ -14,13 +14,12 @@ def remove_non_alphanumerics(s):
 def get_database_as_dataframe():
     url = "https://docs.google.com/spreadsheets/d/18BAtQoLWMxEYZ-Qwiu6lVp02aGKxAG2u0VHMX7MrXh0/export?format=csv&gid=1036746238"
     response = requests.get(url)
-    with open("cdrom-db.csv", 'wb') as f:
+    with open("data/cdrom-db.csv", 'wb') as f:
         f.write(response.content)
-    df = pd.DataFrame(pd.read_csv("cdrom-db.csv"))
-    df['YouTube code'] = df['Link para gameplay'].apply(lambda x: str(x).split("v=")[-1].split("&t=")[0])
-    # df['Filename base'] = df['Nome da obra no Brasil'].astype(str).apply(remove_non_alphanumerics).str.lower().str.replace(" ", "-")
-    # df['Filename base'] += "_" + df['YouTube code']
-    df['Filename base'] = df['YouTube code']
+    df = pd.DataFrame(pd.read_csv("data/cdrom-db.csv"))
+    df['YouTube ID'] = df['Link para gameplay'].apply(lambda x: str(x).split("v=")[-1].split("&t=")[0])
+    df['Filename base'] = df['YouTube ID']
+    df.to_csv("data/cdrom-db.csv", index=False)
     return df
 
 class VideoProcessor():
@@ -32,8 +31,8 @@ class VideoProcessor():
         return filename.split("[")[-1].split("]")[0]
 
     def get_video_metadata(self, video_path):
-        yt_code = self.get_youtube_code(video_path)
-        df_row = self.df[self.df['YouTube code'] == yt_code]
+        yt_id = self.get_youtube_code(video_path)
+        df_row = self.df[self.df['YouTube ID'] == yt_id]
         if df_row.empty:
             return None
         else:

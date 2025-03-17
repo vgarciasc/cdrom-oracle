@@ -21,7 +21,7 @@ def search():
 
     res = MODEL.find_similar_games(query) if query else []
 
-    with open("templates/search.html", 'r', encoding='utf-8') as f:
+    with open("static/search.html", 'r', encoding='utf-8') as f:
         html_template = f.read()
 
     return render_template_string(html_template, query=query, results=res)

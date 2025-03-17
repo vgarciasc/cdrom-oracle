@@ -174,3 +174,5 @@ frames/*
 videos/*
 data/embeddings/*
 .idea/*
+static/img/frames/*
+config.json

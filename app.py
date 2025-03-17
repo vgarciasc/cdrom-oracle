@@ -4,10 +4,12 @@ from translator import Translator
 
 app = Flask(__name__)
 app.jinja_env.filters['zip'] = zip
-MODEL = None
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
+MODEL = None
+TRANSLATOR = None
 
 @app.route("/helloworld")
 def hello():

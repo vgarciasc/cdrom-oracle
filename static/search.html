@@ -13,7 +13,7 @@
     <div class="col-md-6">
         <br><br>
         <div class="text-center">
-            <img class="img-fluid" src="static/img/rabbit-genie.png">
+            <img class="img-fluid" src="static/img/coelho oraculo.png">
             <h1>Oráculo dos CD-ROMs</h1>
         </div>
         <br>
@@ -35,7 +35,7 @@
             <div class="row g-3 card-body">
                 {% for path, similarity in result.paths|zip(result.similarity) %}
                 <div class="col-sm-4 text-center">
-                    <a target="_blank" href="static/img/frames/{{result.youtube_id|capitalize}}/{{ path }}"><img src="static/img/frames/{{result.youtube_id|capitalize}}/{{ path }}"
+                    <a target="_blank" href="static/img/frames/{{result.youtube_id|lower}}/{{ path }}"><img src="static/img/frames/{{result.youtube_id|lower}}/{{ path }}"
                          class="img-fluid" alt="Imagem do Jogo"></a>
                     <p>Similarity: {{ "{:,.2f}".format(similarity) }}</p>
                 </div>
